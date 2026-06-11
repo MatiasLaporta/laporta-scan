@@ -1,0 +1,20 @@
+{
+  "name": "laporta-scan",
+  "version": "1.0.0",
+  "description": "Auditoría web gratis · Performance (Google PageSpeed) + SEO técnico + AEO/GEO/LLMO. Score 0-100, Core Web Vitals y plan de mejoras priorizado.",
+  "type": "commonjs",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node --watch server.js"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "dependencies": {
+    "cheerio": "^1.0.0",
+    "express": "^4.19.2"
+  },
+  "author": "Matías Laporta",
+  "license": "MIT"
+}

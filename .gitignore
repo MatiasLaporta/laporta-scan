@@ -1,0 +1,17 @@
+# Dependencies
+node_modules/
+
+# Secrets — NUNCA commitear
+.env
+.env.local
+*.key
+
+# Leads (datos personales) — se guardan solo en el servidor, jamás en el repo
+data/*.jsonl
+data/*.json
+
+# Logs / OS
+*.log
+npm-debug.log*
+.DS_Store
+Thumbs.db
