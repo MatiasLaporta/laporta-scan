@@ -12,6 +12,11 @@
  *   aeoScore    = suma de pesos de los checks AEO/GEO aprobados (total 100)
  * ============================================================ */
 
+// Carga variables desde .env si el archivo existe (Node 20.12+).
+// En producción (Dokploy/Render/Docker) las inyecta la plataforma, así que
+// esto es no-op allí. El .env local está en .gitignore y nunca se sube.
+try { process.loadEnvFile(); } catch { /* sin .env → usa el env del sistema */ }
+
 const express = require('express');
 const cheerio = require('cheerio');
 const fs = require('fs');
