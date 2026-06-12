@@ -39,7 +39,7 @@ api/lead.js       Vercel function → POST /api/lead   (handler delgado)
 api/_body.js      helper de parseo de body (el prefijo "_" evita que Vercel lo trate como endpoint)
 lib/scanner.js    TODA la lógica: scoring, fetch, cache, rate-limit, leads
 server.js         Express SOLO para local; replica /api/scan y /api/lead usando lib/scanner.js
-vercel.json       maxDuration 60s (un scan PSI tarda ~15-50s)
+vercel.json       maxDuration 60s (un scan PSI tarda ~15-45s; PSI hace timeout a 45s)
 ```
 
 Regla práctica: cualquier cambio de comportamiento va en `lib/scanner.js`. Los handlers (`api/*.js`, `server.js`) solo hacen rate-limit + parseo + llamar a `runScan`/`saveLead`. Si tocás la firma de un export, actualizá los **tres** consumidores (`api/scan.js`, `api/lead.js`, `server.js`).
@@ -50,6 +50,8 @@ Regla práctica: cualquier cambio de comportamiento va en `lib/scanner.js`. Los 
 3. En paralelo: fetch del HTML, `runPSI` (PageSpeed Insights), `analyzeFiles` (robots.txt/sitemap.xml/llms.txt).
 4. `analyzeSeo` (parseo con cheerio) → `analyzeContent` (análisis de texto para AEO) → `consolidate`.
 5. `consolidate` arma el objeto `consolidated` **ya listo para render** (categories, cwv, seoChecks, aeoChecks, recommendations, scores, methodology). **El frontend es genérico: no contiene lógica de scoring, solo pinta lo que llega.** Para cambiar qué se muestra, editá `consolidate`/`scoreSeo`/`scoreAeo`, no el HTML.
+
+`consolidated.psiStatus` (`'ok'` | `'missing-key'` | `'error'`) le dice al frontend por qué no hay Performance: falta la key (mensaje "configura PSI_API_KEY") vs. PSI falló/timeout para esa URL (mensaje "no pudimos medir Performance de este sitio"). No los confundas: en prod la key está, así que casi siempre es `'error'`.
 
 ### Modelo de scoring (basado en evidencia, no en hype)
 Es el core del producto y está justificado con fuentes 2025-2026 (web.dev, paper Princeton GEO KDD'24, Ahrefs, Semrush). Decisiones deliberadas que NO hay que revertir sin releer la evidencia:
