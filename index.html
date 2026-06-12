@@ -193,6 +193,21 @@ h1 .em-y { color: var(--yellow); }
 .cwv-tile .key { font-family: var(--font-mono); font-size: 10px; font-weight: 700; letter-spacing: 0.20em; color: var(--text-muted); margin-bottom: 6px; }
 .cwv-tile .name { font-size: 11.5px; color: var(--text-soft); margin-bottom: 14px; line-height: 1.35; }
 .cwv-tile .v { font-family: var(--font-title); font-weight: 700; font-size: 1.7rem; line-height: 1; letter-spacing: -0.01em; }
+/* v2 · etiqueta de fuente de datos + tags por métrica */
+.cwv-src { grid-column: 1/-1; font-family: var(--font-mono); font-size: 10px; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; padding: 9px 14px; border-radius: 8px; margin-bottom: 2px; }
+.cwv-src.field { color: var(--signal); background: rgba(93,202,209,0.08); border: 1px solid rgba(93,202,209,0.28); }
+.cwv-src.lab { color: var(--text-muted); background: rgba(245,251,249,0.04); border: 1px solid var(--line); }
+.cwv-tile .key { display: flex; align-items: center; gap: 8px; }
+.cwv-tile .key .tag { font-family: var(--font-body); font-style: normal; font-size: 8px; font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase; color: var(--text-muted); padding: 2px 6px; border: 1px solid var(--line); border-radius: 100px; }
+.cat-tile .lbl .src { font-style: normal; font-size: 8px; font-weight: 700; letter-spacing: 0.04em; color: var(--cyan-bright); margin-left: 6px; padding: 1px 5px; border: 1px solid rgba(93,202,209,0.3); border-radius: 100px; vertical-align: middle; }
+.psi-note { grid-column: 1/-1; padding: 30px; background: rgba(243,205,116,0.06); border: 1px solid rgba(243,205,116,0.32); border-radius: 14px; color: var(--yellow); font-size: 13.5px; line-height: 1.6; font-weight: 500; }
+.psi-note code { font-family: var(--font-mono); color: var(--cyan-bright); }
+.psi-note a { color: var(--cyan-bright); }
+.method { margin-top: 40px; padding: 22px 26px; background: var(--card); border: 1px solid var(--line); border-radius: 14px; }
+.method h4 { font-family: var(--font-mono); font-size: 10px; font-weight: 700; letter-spacing: 0.2em; text-transform: uppercase; color: var(--text-muted); margin-bottom: 12px; }
+.method ul { list-style: none; display: grid; gap: 8px; }
+.method li { position: relative; padding-left: 18px; font-size: 12px; line-height: 1.5; color: var(--text-soft); }
+.method li::before { content: '◆'; position: absolute; left: 0; color: var(--cyan-bright); font-size: 9px; top: 3px; }
 
 /* Section headers */
 .section-h { display: flex; align-items: center; gap: 16px; margin: 56px 0 22px; }
@@ -476,6 +491,11 @@ img, video, svg { max-width: 100%; height: auto; }
     </div>
     <button class="btn" id="openLead">Recibir reporte →</button>
   </div>
+
+  <div class="method">
+    <h4>Metodología</h4>
+    <ul id="methodology"></ul>
+  </div>
 </section>
 
 <div class="modal-bg" id="modalBg">
@@ -536,11 +556,19 @@ function cwvBand(metric, val) {
   return 'med';
 }
 
+function esc(v) { return String(v == null ? '' : v).replace(/[&<>"]/g, m => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[m])); }
+
+function renderChecks(arr) {
+  return (arr || []).map(c =>
+    `<div class="check ${c.ok ? 'ok' : 'ko'}"><span class="ico">${c.ok ? '✓' : '×'}</span><div class="txt"><strong>${esc(c.label)}</strong><span>${esc(c.detail)}</span></div></div>`
+  ).join('');
+}
+
 function renderResults(s) {
   lastScan = s;
   const cs = s.consolidated || {};
   const score = cs.globalScore || 0;
-  const band = bandClass(score);
+  const band = cs.band || bandClass(score);
   $('#scoreCircle').className = 'score-circle ' + band;
   $('#scoreVal').textContent = score;
   const c = 2 * Math.PI * 52;
@@ -549,90 +577,45 @@ function renderResults(s) {
   $('#resultsUrl').textContent = s.url;
   if (s.seo?.title?.text) $('#resultsTitle').textContent = s.seo.title.text.slice(0, 80);
 
-  const catRow = $('#catRow');
-  catRow.innerHTML = '';
-  const psiOk = !s.psi?.unavailable;
-  const cats = psiOk ? [
-    { lbl: 'Performance', val: s.psi?.scores?.performance ?? 0 },
-    { lbl: 'SEO', val: s.psi?.scores?.seo ?? 0 },
-    { lbl: 'AEO/GEO/LLMO', val: cs.aeoScore ?? 0 },
-    { lbl: 'Accesibilidad', val: s.psi?.scores?.accessibility ?? 0 },
-    { lbl: 'Best Practices', val: s.psi?.scores?.bestPractices ?? 0 }
-  ] : [
-    { lbl: 'AEO/GEO/LLMO', val: cs.aeoScore ?? 0 }
-  ];
-  for (const c of cats) {
-    const b = bandClass(c.val);
-    const el = document.createElement('div');
-    el.className = 'cat-tile ' + b;
-    el.innerHTML = `<div class="lbl">${c.lbl}</div><div class="val">${c.val}<small>/100</small></div><div class="bar"><i style="width:${c.val}%"></i></div>`;
-    catRow.appendChild(el);
-  }
+  // Categorías (vienen listas del backend)
+  $('#catRow').innerHTML = (cs.categories || []).map(cat => {
+    const b = cat.band || bandClass(cat.val);
+    const src = cat.source === 'field' ? '<i class="src">campo</i>' : (cat.source === 'lab' ? '<i class="src">lab</i>' : '');
+    return `<div class="cat-tile ${b}"><div class="lbl">${esc(cat.lbl)}${src}</div><div class="val">${cat.val}<small>/100</small></div><div class="bar"><i style="width:${cat.val}%"></i></div></div>`;
+  }).join('');
 
+  // Core Web Vitals
   const cwv = $('#cwvGrid');
-  if (!psiOk) {
-    cwv.innerHTML = `<div style="grid-column: 1/-1; padding: 30px; background: rgba(243,205,116,0.06); border: 1px solid rgba(243,205,116,0.32); border-radius: 14px; color: var(--yellow); font-size: 13.5px; line-height: 1.6; font-weight: 500;"><strong>⚠ Performance metrics no disponibles.</strong> Configurar <code style="font-family:var(--font-mono);color:var(--cyan-bright);">PSI_API_KEY</code> en el servidor con una API key de <a href="https://console.cloud.google.com/apis/credentials" target="_blank" rel="noopener" style="color:var(--cyan-bright);">Google Cloud Console</a> (PageSpeed Insights API, gratis hasta 25.000 requests/día) para activar Core Web Vitals + scores Performance/SEO/A11y/Best Practices.</div>`;
+  if (cs.cwvSource === 'none' || !(cs.cwv || []).length) {
+    cwv.innerHTML = `<div class="psi-note"><strong>⚠ Métricas de Performance no disponibles.</strong> Configura <code>PSI_API_KEY</code> en el servidor con una API key de <a href="https://console.cloud.google.com/apis/credentials" target="_blank" rel="noopener">Google Cloud Console</a> (PageSpeed Insights API · gratis hasta 25.000 requests/día) para activar Core Web Vitals + Performance/Accesibilidad/Best Practices con datos de usuarios reales (CrUX).</div>`;
   } else {
-    cwv.innerHTML = '';
-    const metrics = [
-      { key: 'LCP', name: 'Largest Contentful Paint', m: 'lcp' },
-      { key: 'CLS', name: 'Cumulative Layout Shift', m: 'cls' },
-      { key: 'FCP', name: 'First Contentful Paint', m: 'fcp' },
-      { key: 'TBT', name: 'Total Blocking Time', m: 'tbt' },
-      { key: 'SI',  name: 'Speed Index', m: 'si' }
-    ];
-    for (const x of metrics) {
-      const v = s.psi?.coreWebVitals?.[x.m] || {};
-      const b = cwvBand(x.m, v.value);
-      cwv.innerHTML += `<div class="cwv-tile ${b}"><div class="key">${x.key}</div><div class="name">${x.name}</div><div class="v">${v.display || '—'}</div></div>`;
-    }
+    const srcLabel = cs.cwvSource === 'field'
+      ? '◆ Datos de campo · usuarios reales (CrUX, últimos 28 días)'
+      : '◇ Datos de laboratorio · simulación Lighthouse (sin tráfico real suficiente)';
+    cwv.innerHTML = `<div class="cwv-src ${esc(cs.cwvSource)}">${srcLabel}</div>` + (cs.cwv).map(x =>
+      `<div class="cwv-tile ${x.band}"><div class="key">${esc(x.key)}<i class="tag">${esc(x.source)}</i></div><div class="name">${esc(x.name)}</div><div class="v">${esc(x.display)}</div></div>`
+    ).join('');
   }
 
-  const seoEl = $('#seoChecks');
-  const seo = s.seo || {};
-  const files = s.files || {};
-  const seoChecks = [
-    { ok: seo.title?.ok, label: 'Title tag óptimo', detail: `${seo.title?.length || 0} chars · ideal 30-70` },
-    { ok: seo.description?.ok, label: 'Meta description', detail: `${seo.description?.length || 0} chars · ideal 70-320` },
-    { ok: seo.canonical?.has, label: 'Canonical', detail: seo.canonical?.value || 'sin canonical' },
-    { ok: seo.viewport?.has, label: 'Viewport mobile', detail: 'meta viewport configurado' },
-    { ok: seo.lang?.has, label: 'Idioma HTML', detail: `lang="${seo.lang?.value || '—'}"` },
-    { ok: seo.headings?.h1Count === 1, label: 'Un único H1', detail: `${seo.headings?.h1Count || 0} H1 encontrados` },
-    { ok: (seo.images?.altCoverage || 0) >= 90, label: 'Imágenes con alt', detail: `${seo.images?.altCoverage || 0}% con alt · ${seo.images?.withoutAlt || 0} sin alt` },
-    { ok: seo.isHttps, label: 'HTTPS activo', detail: seo.isHttps ? 'conexión segura' : 'no HTTPS' },
-    { ok: seo.security?.hsts, label: 'HSTS header', detail: 'Strict-Transport-Security' },
-    { ok: files.robots?.exists, label: 'robots.txt', detail: files.robots?.exists ? 'encontrado' : 'no existe' },
-    { ok: files.sitemap?.exists, label: 'sitemap.xml', detail: files.sitemap?.urlCount ? `${files.sitemap.urlCount} URLs` : 'no existe' },
-    { ok: seo.og?.image, label: 'Open Graph image', detail: 'og:image presente' }
-  ];
-  seoEl.innerHTML = seoChecks.map(c => `<div class="check ${c.ok ? 'ok' : 'ko'}"><span class="ico">${c.ok ? '✓' : '×'}</span><div class="txt"><strong>${c.label}</strong><span>${c.detail}</span></div></div>`).join('');
+  // SEO + AEO (checks listos del backend)
+  $('#seoChecks').innerHTML = renderChecks(cs.seoChecks);
+  $('#aeoChecks').innerHTML = renderChecks(cs.aeoChecks);
 
-  const aeoEl = $('#aeoChecks');
-  const aeoChecks = [
-    { ok: seo.schema?.hasOrg, label: 'Schema.org Organization', detail: 'Estructura para Google + AI' },
-    { ok: seo.schema?.hasFaqPage, label: 'FAQPage schema', detail: 'Crítico para featured snippets y citas LLM' },
-    { ok: seo.schema?.hasBreadcrumb, label: 'BreadcrumbList', detail: 'Mejor parsing por crawlers' },
-    { ok: seo.schema?.hasSpeakable, label: 'Speakable (voice AI)', detail: 'Para Siri / Google Assistant' },
-    { ok: files.llms?.exists, label: 'llms.txt', detail: files.llms?.exists ? `${Math.round(files.llms.length / 1024)}KB` : 'Estándar emergente para LLMs' },
-    { ok: (files.robots?.aiBotsAllowedCount || 0) >= 5, label: 'AI crawlers permitidos', detail: `${files.robots?.aiBotsAllowedCount || 0}/12 bots (GPTBot, ClaudeBot, etc)` },
-    { ok: seo.og?.title && seo.og?.description && seo.og?.image, label: 'Open Graph completo', detail: 'title + description + image' },
-    { ok: seo.twitter?.card, label: 'Twitter Card', detail: seo.twitter?.type || 'sin card' },
-    { ok: (seo.schema?.types || []).length >= 3, label: 'Schemas múltiples', detail: `${seo.schema?.count || 0} JSON-LD · ${(seo.schema?.types || []).slice(0,3).join(', ')}` },
-    { ok: (seo.hreflangs?.count || 0) > 0, label: 'hreflang multilenguaje', detail: `${seo.hreflangs?.count || 0} alternativos` }
-  ];
-  aeoEl.innerHTML = aeoChecks.map(c => `<div class="check ${c.ok ? 'ok' : 'ko'}"><span class="ico">${c.ok ? '✓' : '×'}</span><div class="txt"><strong>${c.label}</strong><span>${c.detail}</span></div></div>`).join('');
-
-  const recosEl = $('#recos');
-  recosEl.innerHTML = (cs.recommendations || []).map(r => `
-    <div class="reco ${r.severity}">
+  // Recomendaciones
+  $('#recos').innerHTML = (cs.recommendations || []).map(r => `
+    <div class="reco ${esc(r.severity)}">
       <span class="sev"></span>
       <div class="reco-body">
-        <div class="reco-meta"><span class="sev-label">${r.severity}</span><span class="area">${r.area}</span></div>
-        <h4>${r.title}</h4>
-        <p>${r.tip}</p>
+        <div class="reco-meta"><span class="sev-label">${esc(r.severity)}</span><span class="area">${esc(r.area)}</span></div>
+        <h4>${esc(r.title)}</h4>
+        <p>${esc(r.tip)}</p>
       </div>
     </div>
   `).join('');
+
+  // Metodología
+  const methEl = $('#methodology');
+  if (methEl) methEl.innerHTML = (cs.methodology || []).map(m => `<li>${esc(m)}</li>`).join('');
 
   loader.classList.remove('active');
   results.classList.add('active');
