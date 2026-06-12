@@ -587,7 +587,10 @@ function renderResults(s) {
   // Core Web Vitals
   const cwv = $('#cwvGrid');
   if (cs.cwvSource === 'none' || !(cs.cwv || []).length) {
-    cwv.innerHTML = `<div class="psi-note"><strong>⚠ Métricas de Performance no disponibles.</strong> Configura <code>PSI_API_KEY</code> en el servidor con una API key de <a href="https://console.cloud.google.com/apis/credentials" target="_blank" rel="noopener">Google Cloud Console</a> (PageSpeed Insights API · gratis hasta 25.000 requests/día) para activar Core Web Vitals + Performance/Accesibilidad/Best Practices con datos de usuarios reales (CrUX).</div>`;
+    const msg = cs.psiStatus === 'error'
+      ? `<strong>⚠ No pudimos medir el Performance de este sitio.</strong> PageSpeed Insights tardó demasiado o el sitio es muy pesado para analizarlo en tiempo real. El <strong>SEO técnico</strong> y el <strong>AEO/GEO</strong> de abajo sí son válidos.`
+      : `<strong>⚠ Métricas de Performance no disponibles.</strong> Configura <code>PSI_API_KEY</code> en el servidor con una API key de <a href="https://console.cloud.google.com/apis/credentials" target="_blank" rel="noopener">Google Cloud Console</a> (PageSpeed Insights API · gratis hasta 25.000 requests/día) para activar Core Web Vitals + Performance/Accesibilidad/Best Practices con datos de usuarios reales (CrUX).`;
+    cwv.innerHTML = `<div class="psi-note">${msg}</div>`;
   } else {
     const srcLabel = cs.cwvSource === 'field'
       ? '◆ Datos de campo · usuarios reales (CrUX, últimos 28 días)'
