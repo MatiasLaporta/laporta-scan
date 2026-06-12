@@ -19,6 +19,9 @@ const PORT = process.env.PORT || 3000;
 
 app.use(express.json({ limit: '3mb' }));
 
+// Assets estáticos (favicon, logo…). En Vercel los sirve la plataforma desde /public.
+app.use(express.static(path.join(__dirname, 'public')));
+
 // Frontend
 app.get('/', (req, res) => res.sendFile(path.join(__dirname, 'index.html')));
 

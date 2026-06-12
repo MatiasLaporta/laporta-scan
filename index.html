@@ -3,7 +3,8 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>Laporta Scan · Auditoría web gratis · Performance + SEO + AEO/GEO</title>
+<link rel="icon" type="image/svg+xml" href="/favicon.svg"/>
+<title>Scan · Auditoría web gratis · Performance + SEO + AEO/GEO</title>
 <meta name="description" content="Auditoría gratuita de tu web · Google PageSpeed Insights + SEO técnico + AEO/GEO/LLMO. Score 0-100 + Core Web Vitals + 22 checks + plan de mejoras priorizado. Por Matías Laporta · Growth Architect."/>
 <meta name="robots" content="index, follow"/>
 <link rel="canonical" href="https://scan.matiaslaporta.com/"/>
@@ -62,8 +63,11 @@ a { color: inherit; text-decoration: none; }
 button { font: inherit; color: inherit; cursor: pointer; background: none; border: 0; }
 ::selection { background: var(--cyan); color: var(--bg-base); }
 
+/* === BG · constelación de nodos (canvas) === */
+#nodes { position: fixed; inset: 0; width: 100%; height: 100%; z-index: 0; pointer-events: none; }
+
 /* === BG · orbs suaves === */
-.bg-orb { position: fixed; top: -20%; right: -15%; width: 65vw; height: 65vw; max-width: 1000px; max-height: 1000px; border-radius: 50%; background: radial-gradient(ellipse, rgba(93,202,209,0.20), transparent 60%); filter: blur(80px); pointer-events: none; z-index: 0; }
+.bg-orb { position: fixed; top: -20%; right: -15%; width: 65vw; height: 65vw; max-width: 1000px; max-height: 1000px; border-radius: 50%; background: radial-gradient(ellipse, rgba(243,205,116,0.20), transparent 60%); filter: blur(80px); pointer-events: none; z-index: 0; }
 .bg-orb-2 { position: fixed; bottom: -25%; left: -15%; width: 50vw; height: 50vw; max-width: 800px; max-height: 800px; border-radius: 50%; background: radial-gradient(ellipse, rgba(243,205,116,0.12), transparent 60%); filter: blur(80px); pointer-events: none; z-index: 0; }
 
 /* === Holos giant outlined === */
@@ -71,17 +75,17 @@ button { font: inherit; color: inherit; cursor: pointer; background: none; borde
 .holo.yellow { -webkit-text-stroke-color: rgba(243,205,116,0.13); }
 
 /* === Topbar === */
-.topbar { position: sticky; top: 0; z-index: 50; padding: 16px clamp(20px, 4vw, 44px); display: flex; justify-content: space-between; align-items: center; background: rgba(18,22,47,0.82); backdrop-filter: blur(18px); border-bottom: 1px solid var(--line); }
+.topbar { position: sticky; top: 0; z-index: 50; padding: 12px clamp(20px, 4vw, 44px); display: flex; justify-content: space-between; align-items: center; background: rgba(18,22,47,0.82); backdrop-filter: blur(18px); border-bottom: 1px solid var(--line); }
 .brand { display: flex; align-items: center; gap: 16px; color: var(--text-pure); text-decoration: none; }
-.brand-logo { display: grid; place-items: center; height: 56px; width: 56px; border-radius: 14px; flex-shrink: 0; background: linear-gradient(135deg, var(--blue), var(--steel)); border: 1px solid var(--line-strong); transition: transform 0.3s var(--ease-fluid); }
-.brand-logo span { font-family: var(--font-title); font-weight: 700; font-size: 22px; letter-spacing: 0.02em; color: var(--text-pure); }
+.brand-logo { display: grid; place-items: center; height: 51px; width: 146px; flex-shrink: 0; transition: transform 0.3s var(--ease-fluid); }
+.brand-logo img { width: 100%; height: 100%; object-fit: contain; object-position: left center; display: block; }
 .brand-logo:hover { transform: scale(1.04) rotate(-2deg); }
 .brand-tag { font-family: var(--font-body); font-size: 11px; font-weight: 700; letter-spacing: 0.10em; color: var(--cyan-bright); text-transform: uppercase; padding-left: 14px; border-left: 1px solid var(--line); }
 .brand-tag strong { color: var(--text-pure); font-weight: 800; display: block; font-size: 12px; margin-bottom: 2px; letter-spacing: 0.04em; }
-@media (max-width: 760px) { .brand-logo { height: 48px; width: 48px; border-radius: 12px; } .brand-logo span { font-size: 18px; } .brand-tag { display: none; } }
+@media (max-width: 760px) { .brand-logo { height: 40px; width: 114px; } .brand-tag { display: none; } }
 .topbar-right { display: flex; gap: 18px; align-items: center; font-family: var(--font-mono); font-size: 10.5px; letter-spacing: 0.18em; text-transform: uppercase; color: var(--text-muted); }
-.topbar-right .live { display: inline-flex; align-items: center; gap: 7px; color: var(--signal); }
-.topbar-right .live::before { content: ''; width: 7px; height: 7px; border-radius: 50%; background: var(--signal); box-shadow: 0 0 8px var(--signal); animation: pulse 1.6s infinite; }
+.topbar-right .live { display: inline-flex; align-items: center; gap: 7px; color: var(--yellow); }
+.topbar-right .live::before { content: ''; width: 7px; height: 7px; border-radius: 50%; background: var(--yellow); box-shadow: 0 0 8px var(--yellow); animation: pulse 1.6s infinite; }
 .topbar-right a:hover { color: var(--yellow); }
 @keyframes pulse { 50% { opacity: 0.35; } }
 @media (max-width: 500px) { .topbar-right .live { display: none; } }
@@ -115,11 +119,12 @@ button { font: inherit; color: inherit; cursor: pointer; background: none; borde
   .hero-orbita .o1, .hero-orbita .o2 { top: 4px; }
   .hero-orbita .o5, .hero-orbita .o6 { bottom: 10%; }
 }
-.eyebrow { display: inline-flex; align-items: center; gap: 10px; padding: 8px 18px; background: rgba(93,202,209,0.10); border: 1px solid rgba(93,202,209,0.35); font-family: var(--font-body); font-size: 12px; font-weight: 700; letter-spacing: 0.10em; color: var(--cyan-bright); text-transform: uppercase; border-radius: 100px; margin-bottom: 32px; }
-.eyebrow::before { content: ''; width: 7px; height: 7px; border-radius: 50%; background: var(--cyan-bright); box-shadow: 0 0 10px var(--cyan-bright); animation: pulse 1.8s infinite; }
+.eyebrow { display: inline-flex; align-items: center; gap: 10px; padding: 8px 18px; background: rgba(243,205,116,0.10); border: 1px solid rgba(243,205,116,0.35); font-family: var(--font-body); font-size: 12px; font-weight: 700; letter-spacing: 0.10em; color: var(--yellow); text-transform: uppercase; border-radius: 100px; margin-bottom: 32px; }
+.eyebrow::before { content: ''; width: 7px; height: 7px; border-radius: 50%; background: var(--yellow); box-shadow: 0 0 10px var(--yellow); animation: pulse 1.8s infinite; }
 h1 { font-family: var(--font-title); font-weight: 700; font-size: clamp(2.6rem, 7.5vw, 6rem); line-height: 0.98; letter-spacing: -0.01em; margin-bottom: 28px; text-transform: uppercase; }
 h1 .em { color: var(--cyan-bright); }
 h1 .em-y { color: var(--yellow); }
+h1 .br-m { display: none; } /* salto de línea solo en móvil */
 .hero-sub { font-family: var(--font-body); font-weight: 400; font-size: clamp(1rem, 1.4vw, 1.18rem); line-height: 1.6; color: var(--text-soft); max-width: 64ch; margin: 0 auto 40px; }
 .hero-sub strong { color: var(--text-pure); font-weight: 600; }
 
@@ -167,6 +172,12 @@ h1 .em-y { color: var(--yellow); }
 .results-url { font-family: var(--font-mono); font-size: 12px; color: var(--cyan-bright); margin-bottom: 10px; word-break: break-all; font-weight: 500; }
 .results-info h2 { font-family: var(--font-title); font-weight: 700; font-size: clamp(1.6rem, 3.2vw, 2.2rem); line-height: 1.12; letter-spacing: -0.01em; margin-bottom: 6px; }
 .results-info p { color: var(--text-soft); font-size: 0.94rem; }
+.score-legend { display: flex; gap: 18px; flex-wrap: wrap; margin-top: 14px; }
+.score-legend .lg { display: inline-flex; align-items: center; gap: 7px; font-family: var(--font-mono); font-size: 10.5px; letter-spacing: 0.06em; text-transform: uppercase; color: var(--text-soft); font-weight: 600; }
+.score-legend .lg i { width: 9px; height: 9px; border-radius: 50%; flex-shrink: 0; }
+.score-legend .bad i  { background: var(--red);    box-shadow: 0 0 6px var(--red); }
+.score-legend .med i  { background: var(--yellow); box-shadow: 0 0 6px var(--yellow); }
+.score-legend .good i { background: var(--signal); box-shadow: 0 0 6px var(--signal); }
 
 /* Category scores row */
 .cat-row { display: grid; grid-template-columns: repeat(5, 1fr); gap: 12px; margin-bottom: 44px; }
@@ -243,12 +254,12 @@ h1 .em-y { color: var(--yellow); }
 .reco p { font-size: 13px; color: var(--text-soft); line-height: 1.55; }
 
 /* CTA */
-.cta-card { margin-top: 52px; padding: clamp(30px, 5vw, 56px); background: linear-gradient(135deg, var(--steel) 0%, var(--cyan) 100%); color: var(--bg-base); border-radius: 24px; display: flex; gap: 30px; align-items: center; justify-content: space-between; flex-wrap: wrap; position: relative; overflow: hidden; }
-.cta-card::before { content: ''; position: absolute; top: -50%; right: -10%; width: 420px; height: 420px; background: radial-gradient(circle, rgba(243,205,116,0.34), transparent 70%); border-radius: 50%; }
-.cta-card h3 { font-family: var(--font-title); font-weight: 700; font-size: clamp(1.5rem, 3.2vw, 2.3rem); line-height: 1.05; letter-spacing: -0.01em; position: relative; }
-.cta-card p { font-size: 0.95rem; opacity: 0.9; max-width: 52ch; margin-top: 8px; position: relative; font-weight: 500; }
-.cta-card .btn { padding: 16px 30px; background: var(--bg-base); color: var(--text-pure); font-family: var(--font-body); font-weight: 800; font-size: 12px; letter-spacing: 0.14em; text-transform: uppercase; border-radius: 100px; position: relative; transition: all 0.3s var(--ease-fluid); }
-.cta-card .btn:hover { transform: translateY(-2px); background: var(--yellow); color: var(--bg-base); box-shadow: 0 16px 32px rgba(0,0,0,0.30); }
+.cta-card { margin-top: 52px; padding: clamp(30px, 5vw, 56px); background: rgba(243,205,116,0.10); border: 1px solid rgba(243,205,116,0.38); color: var(--text-pure); border-radius: 24px; display: flex; flex-direction: column; align-items: center; text-align: center; gap: 22px; }
+.cta-card > div { width: 100%; }
+.cta-card h3 { font-family: var(--font-title); font-weight: 700; font-size: clamp(1.5rem, 3.2vw, 2.3rem); line-height: 1.05; letter-spacing: -0.01em; color: var(--yellow); }
+.cta-card p { font-size: 0.95rem; color: var(--text-soft); max-width: none; margin-top: 10px; font-weight: 500; }
+.cta-card .btn { padding: 16px 30px; background: var(--yellow); color: var(--bg-base); font-family: var(--font-body); font-weight: 800; font-size: 12px; letter-spacing: 0.14em; text-transform: uppercase; border-radius: 100px; transition: all 0.3s var(--ease-fluid); }
+.cta-card .btn:hover { transform: translateY(-2px); background: var(--cyan-bright); color: var(--bg-base); box-shadow: 0 16px 32px rgba(45,184,192,0.40); }
 
 /* Modal lead */
 .modal-bg { position: fixed; inset: 0; background: rgba(18,22,47,0.86); backdrop-filter: blur(10px); z-index: 100; display: none; align-items: center; justify-content: center; padding: 20px; }
@@ -268,17 +279,13 @@ h1 .em-y { color: var(--yellow); }
 .modal.done .success { display: block; }
 
 /* Stat AEO/GEO vs SEO · industry shift */
-.stat-shift { margin: 16px auto 64px; max-width: 920px; padding: 28px 34px; background: linear-gradient(135deg, rgba(243,205,116,0.10), rgba(93,202,209,0.08)); border: 1px solid rgba(243,205,116,0.30); border-radius: 18px; position: relative; overflow: hidden; }
+.stat-shift { margin: 16px auto 64px; max-width: 920px; padding: 28px 34px; background: linear-gradient(135deg, rgba(243,205,116,0.18), rgba(243,205,116,0.07)); border: 1px solid rgba(243,205,116,0.45); border-radius: 18px; position: relative; overflow: hidden; }
 .scan-form { margin-top: 32px !important; }
 .stat-shift::before { content: ''; position: absolute; top: -30%; right: -10%; width: 280px; height: 280px; background: radial-gradient(circle, rgba(243,205,116,0.18), transparent 70%); border-radius: 50%; }
-.stat-shift-grid { display: grid; grid-template-columns: auto 1fr auto; gap: 28px; align-items: center; position: relative; }
-@media (max-width: 760px) { .stat-shift-grid { grid-template-columns: 1fr; gap: 16px; text-align: center; } }
-.stat-shift .num { font-family: var(--font-title); font-weight: 700; font-size: clamp(2.6rem, 5vw, 4rem); line-height: 0.95; letter-spacing: -0.01em; color: var(--yellow); }
-.stat-shift .num small { font-family: var(--font-body); font-size: 0.34em; color: var(--text-muted); font-weight: 600; margin-left: 6px; letter-spacing: 0.04em; }
-.stat-shift .body strong { display: block; font-family: var(--font-title); font-size: clamp(1.05rem, 2vw, 1.35rem); font-weight: 700; line-height: 1.15; letter-spacing: -0.01em; margin-bottom: 6px; color: var(--text-pure); }
-.stat-shift .body span { font-size: 13.5px; line-height: 1.55; color: var(--text-soft); display: block; max-width: 56ch; }
-.stat-shift .bars { display: flex; flex-direction: column; gap: 8px; min-width: 160px; }
-@media (max-width: 760px) { .stat-shift .bars { min-width: 0; width: 100%; max-width: 280px; margin: 0 auto; } }
+.stat-shift-grid { display: flex; flex-direction: column; gap: 36px; align-items: center; text-align: center; position: relative; }
+.stat-shift .body strong { display: block; font-family: var(--font-title); font-size: clamp(1.25rem, 2.6vw, 1.75rem); font-weight: 700; line-height: 1.18; letter-spacing: -0.01em; margin-bottom: 10px; color: var(--text-pure); }
+.stat-shift .body span { font-size: clamp(13.5px, 1.4vw, 15px); line-height: 1.6; color: var(--text-soft); display: block; max-width: 68ch; margin: 0 auto; }
+.stat-shift .bars { display: flex; flex-direction: column; gap: 8px; width: 100%; max-width: 460px; margin: 0 auto; }
 .stat-shift .bar-row { font-family: var(--font-body); font-size: 10px; letter-spacing: 0.08em; font-weight: 700; color: var(--text-soft); text-transform: uppercase; display: flex; align-items: center; gap: 8px; }
 .stat-shift .bar-row .lbl { width: 64px; text-align: right; font-size: 10.5px; }
 .stat-shift .bar-row .bar { flex: 1; height: 8px; background: rgba(245,251,249,0.07); border-radius: 100px; overflow: hidden; }
@@ -313,7 +320,7 @@ html, body { max-width: 100vw; overflow-x: hidden; }
 img, video, svg { max-width: 100%; height: auto; }
 
 @media (max-width: 760px) {
-  .topbar { padding: 12px clamp(14px, 3.5vw, 22px); }
+  .topbar { padding: 6px clamp(14px, 3.5vw, 22px); }
   .topbar-right { gap: 12px; font-size: 10px; letter-spacing: 0.12em; }
   .hero { padding: clamp(70px, 10vh, 110px) clamp(54px, 12vw, 70px) clamp(36px, 6vh, 60px); }
   h1 { font-size: clamp(2.2rem, 8vw, 4rem); margin-bottom: 22px; padding: 0 6px; }
@@ -336,7 +343,7 @@ img, video, svg { max-width: 100%; height: auto; }
   .reco { padding: 16px 16px; }
   .reco h4 { font-size: 1.05rem; }
   .reco-meta { font-size: 9px; letter-spacing: 0.14em; gap: 8px; }
-  .cta-card { padding: 30px 24px; gap: 22px; border-radius: 18px; flex-direction: column; align-items: flex-start; text-align: left; }
+  .cta-card { padding: 30px 24px; gap: 22px; border-radius: 18px; flex-direction: column; align-items: center; text-align: center; }
   .cta-card .btn { padding: 14px 26px; width: 100%; text-align: center; }
   .modal { padding: 26px 22px; border-radius: 18px; max-height: 92vh; overflow-y: auto; }
   .modal h3 { font-size: 1.35rem; }
@@ -373,17 +380,37 @@ img, video, svg { max-width: 100%; height: auto; }
   .reco:hover { transform: none; border-color: var(--line); }
   .cat-tile, .cwv-tile, .check { -webkit-tap-highlight-color: transparent; }
 }
+
+/* === Ajustes SOLO móvil (no afectan escritorio) === */
+@media (max-width: 760px) {
+  /* 3 · orden del título: "Audita tu" / "web en" / "SEO &" / "AEO/GEO" */
+  h1 .br-d { display: none; }
+  h1 .br-m { display: inline; }
+  /* 4 · holos de fondo (SCAN / AUDIT) ocultos en móvil: no se ven bien en pantalla chica */
+  .holo { display: none; }
+  /* 5 · ocultar los motores de IA flotantes (ChatGPT, Claude, Gemini…) */
+  .hero-orbita { display: none; }
+  /* 6 · "SCORE GLOBAL" más chico para que quede dentro del círculo */
+  .score-circle .lbl span { font-size: 7px; letter-spacing: 0.10em; margin-top: 2px; }
+  /* 7 · leyenda de colores en horizontal y centrada en TODA la pantalla.
+     Se saca del flujo (la columna del título es angosta) y se ancla a lo ancho de la sección. */
+  .results-head { position: relative; padding-bottom: 50px; }
+  .score-legend { position: absolute; left: 0; right: 0; bottom: 14px; margin-top: 0; gap: 9px; flex-wrap: nowrap; justify-content: center; }
+  .score-legend .lg { font-size: 8.5px; letter-spacing: 0; white-space: nowrap; gap: 5px; }
+  .score-legend .lg i { width: 7px; height: 7px; }
+}
 </style>
 </head>
 <body>
 
+<canvas id="nodes" aria-hidden="true"></canvas>
 <div class="bg-orb"></div>
 <div class="bg-orb-2"></div>
 
 <header class="topbar">
   <a href="https://matiaslaporta.com" class="brand" aria-label="Matías Laporta · Growth Architect">
-    <span class="brand-logo"><span>ML</span></span>
-    <span class="brand-tag"><strong>Scan</strong>Free audit · Chile 2026</span>
+    <span class="brand-logo"><img src="/logo-ml-inv.png" alt="Matías Laporta" width="56" height="56"/></span>
+    <span class="brand-tag"><strong>Scan web</strong>Auditoría gratis</span>
   </a>
   <div class="topbar-right">
     <span class="live">SCAN LIVE</span>
@@ -406,20 +433,19 @@ img, video, svg { max-width: 100%; height: auto; }
   </div>
 
   <span class="eyebrow">Auditoría web · Gratis · 30 segundos</span>
-  <h1>Audita tu web<br/>en <span class="em">Performance</span> <span class="em-y">SEO</span> &amp; <span class="em">AEO/GEO</span></h1>
-  <p class="hero-sub">Pon la URL de tu sitio y te devolvemos un análisis completo: <strong>Core Web Vitals</strong> (Google PageSpeed Insights), <strong>SEO técnico</strong> y <strong>optimización para crawlers de IA</strong> (ChatGPT, Claude, Gemini, Perplexity). Score 0-100 y plan de mejoras priorizado.</p>
+  <h1>Audita tu<br class="br-m"/> web<br class="br-d"/> en<br class="br-m"/> <span class="em-y">SEO</span> &amp;<br class="br-m"/> <span class="em-y">AEO/GEO</span></h1>
+  <p class="hero-sub">Pon la URL de tu web y te daremos un análisis: <strong>SEO técnico</strong> y <strong>optimización para crawlers de IA</strong> (ChatGPT, Claude, Gemini, Perplexity) + plan de mejoras.</p>
 
   <div class="stat-shift" id="statShift">
     <div class="stat-shift-grid">
-      <div class="num">+540<small>%</small></div>
       <div class="body">
-        <strong>AEO &amp; GEO crecieron 540% en 2 años</strong>
-        <span>El SEO clásico sigue siendo crítico. Pero la <strong style="color:var(--yellow);">búsqueda con IA</strong> (ChatGPT, Claude, Gemini, Perplexity) ya mueve <strong style="color:var(--yellow);">1 de cada 4 consultas</strong>. Quien no optimiza para AEO/GEO/LLMO hoy, queda fuera del nuevo discovery layer.</span>
+        <strong>Gartner proyecta −25% de búsquedas tradicionales en 2026</strong>
+        <span>El SEO sigue siendo la base: sin él, no te indexan. Pero <strong style="color:var(--yellow);">1 de cada 4 búsquedas</strong> está migrando a asistentes de IA (ChatGPT, Claude, Gemini, Perplexity),<br/>un nuevo discovery layer donde tu marca se <strong style="color:var(--yellow);">cita… o desaparece</strong>. Optimizar para AEO/GEO/LLMO es competir en ambos frentes.</span>
       </div>
       <div class="bars">
-        <div class="bar-row seo"><span class="lbl">SEO</span><span class="bar"><i></i></span><span class="pct">60%</span></div>
-        <div class="bar-row aeo"><span class="lbl">AEO/GEO</span><span class="bar"><i></i></span><span class="pct">95%</span></div>
-        <div style="font-family: var(--font-body); font-size: 9.5px; letter-spacing: 0.10em; color: var(--text-muted); font-weight: 600; text-transform: uppercase; margin-top: 4px;">Importancia para 2026</div>
+        <div class="bar-row seo"><span class="lbl">SEO</span><span class="bar"><i></i></span><span class="pct">base</span></div>
+        <div class="bar-row aeo"><span class="lbl">AEO/GEO</span><span class="bar"><i></i></span><span class="pct">en alza</span></div>
+        <div style="font-family: var(--font-body); font-size: 9.5px; letter-spacing: 0.10em; color: var(--text-muted); font-weight: 600; text-transform: uppercase; margin-top: 4px;">Hacia dónde crece la búsqueda · Gartner 2024</div>
       </div>
     </div>
   </div>
@@ -467,6 +493,11 @@ img, video, svg { max-width: 100%; height: auto; }
       <div class="results-url" id="resultsUrl"></div>
       <h2 id="resultsTitle">Análisis listo</h2>
       <p id="resultsSub">Categorías, Core Web Vitals y plan de mejoras priorizado abajo.</p>
+      <div class="score-legend">
+        <span class="lg bad"><i></i>Es pésimo</span>
+        <span class="lg med"><i></i>Requiere mejoras</span>
+        <span class="lg good"><i></i>Está bien</span>
+      </div>
     </div>
   </div>
 
@@ -487,7 +518,7 @@ img, video, svg { max-width: 100%; height: auto; }
   <div class="cta-card">
     <div>
       <h3>¿Quieres que implemente estas mejoras en tu web?</h3>
-      <p>Te envío el reporte completo y agendamos una llamada para revisar tu estrategia de Performance + SEO + AEO/GEO. Sin costo, sin spam.</p>
+      <p>Te envío el reporte detallado y agendemos una reunión por Google Meet para revisar tu estrategia de Performance + SEO + AEO/GEO.<br/>Sin costo, sin spam.</p>
     </div>
     <button class="btn" id="openLead">Recibir reporte →</button>
   </div>
@@ -524,17 +555,93 @@ img, video, svg { max-width: 100%; height: auto; }
 
 <footer class="foot">
   <div class="foot-inner">
-    <div class="foot-grupo">
-      <span class="lbl">— Por</span>
-      <a href="https://matiaslaporta.com" target="_blank" rel="noopener"><span class="name">Matías Laporta</span></a>
-    </div>
     <div class="foot-copy">
-      © 2026 · <a href="https://matiaslaporta.com" target="_blank" rel="noopener">Matías Laporta</a> · Growth Architect · Chile
+      © 2026 · <a href="https://matiaslaporta.com" target="_blank" rel="noopener">Matías Laporta</a> · Growth Architect
     </div>
   </div>
 </footer>
 
 <script>
+/* === Constelación de nodos cian (fondo) — estilo header matiaslaporta.com === */
+(function () {
+  const canvas = document.getElementById('nodes');
+  if (!canvas || window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  const ctx = canvas.getContext('2d');
+  const nodeCount = () => (w <= 760 ? 20 : 45); // 20 en móvil, 45 en escritorio
+  const LINK = 160;          // distancia máx. para enlazar dos nodos
+  const MOUSE_R = 190;       // radio de influencia del cursor
+  const CYAN = '93,202,209'; // --cyan-bright en RGB
+  let w, h, dpr, pts = [];
+  const mouse = { x: -9999, y: -9999, active: false };
+
+  function resize() {
+    dpr = Math.min(window.devicePixelRatio || 1, 2);
+    w = canvas.clientWidth; h = canvas.clientHeight;
+    canvas.width = w * dpr; canvas.height = h * dpr;
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  }
+  function seed() {
+    pts = Array.from({ length: nodeCount() }, () => ({
+      x: Math.random() * w, y: Math.random() * h,
+      vx: (Math.random() - 0.5) * 0.22, vy: (Math.random() - 0.5) * 0.22,
+      r: Math.random() * 1.6 + 1.1
+    }));
+  }
+  function frame() {
+    ctx.clearRect(0, 0, w, h);
+    for (const p of pts) {
+      // repulsión suave: el cursor empuja los nodos cercanos
+      if (mouse.active) {
+        const mx = p.x - mouse.x, my = p.y - mouse.y;
+        const md = Math.hypot(mx, my);
+        if (md < MOUSE_R && md > 0.01) {
+          const force = (1 - md / MOUSE_R) * 0.6;
+          p.x += (mx / md) * force; p.y += (my / md) * force;
+        }
+      }
+      p.x += p.vx; p.y += p.vy;
+      if (p.x < 0 || p.x > w) p.vx *= -1;
+      if (p.y < 0 || p.y > h) p.vy *= -1;
+      p.x = Math.max(0, Math.min(w, p.x)); p.y = Math.max(0, Math.min(h, p.y));
+    }
+    // enlaces entre nodos
+    for (let i = 0; i < pts.length; i++) {
+      for (let j = i + 1; j < pts.length; j++) {
+        const dx = pts[i].x - pts[j].x, dy = pts[i].y - pts[j].y;
+        const d = Math.hypot(dx, dy);
+        if (d < LINK) {
+          ctx.strokeStyle = 'rgba(' + CYAN + ',' + (0.16 * (1 - d / LINK)).toFixed(3) + ')';
+          ctx.lineWidth = 1;
+          ctx.beginPath(); ctx.moveTo(pts[i].x, pts[i].y); ctx.lineTo(pts[j].x, pts[j].y); ctx.stroke();
+        }
+      }
+    }
+    // enlaces hacia el cursor (más brillantes)
+    if (mouse.active) {
+      for (const p of pts) {
+        const d = Math.hypot(p.x - mouse.x, p.y - mouse.y);
+        if (d < MOUSE_R) {
+          ctx.strokeStyle = 'rgba(' + CYAN + ',' + (0.40 * (1 - d / MOUSE_R)).toFixed(3) + ')';
+          ctx.lineWidth = 1;
+          ctx.beginPath(); ctx.moveTo(p.x, p.y); ctx.lineTo(mouse.x, mouse.y); ctx.stroke();
+        }
+      }
+    }
+    // nodos
+    for (const p of pts) {
+      const near = mouse.active && Math.hypot(p.x - mouse.x, p.y - mouse.y) < MOUSE_R;
+      ctx.fillStyle = 'rgba(' + CYAN + ',' + (near ? 0.95 : 0.65) + ')';
+      ctx.beginPath(); ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2); ctx.fill();
+    }
+    requestAnimationFrame(frame);
+  }
+  resize(); seed(); frame();
+  window.addEventListener('mousemove', (e) => { mouse.x = e.clientX; mouse.y = e.clientY; mouse.active = true; });
+  window.addEventListener('mouseout', () => { mouse.active = false; });
+  let rt;
+  window.addEventListener('resize', () => { clearTimeout(rt); rt = setTimeout(() => { resize(); seed(); }, 200); });
+})();
+
 const $ = (s) => document.querySelector(s);
 setTimeout(() => document.getElementById('statShift')?.classList.add('active'), 400);
 const form = $('#scanForm');
