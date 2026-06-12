@@ -12,7 +12,7 @@ try { process.loadEnvFile(); } catch { /* sin .env → usa el env del sistema */
 
 const express = require('express');
 const path = require('path');
-const { runScan, saveLead, PSI_API_KEY } = require('./lib/scanner');
+const { runScan, saveLead, rateLimit, PSI_API_KEY } = require('./lib/scanner');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -23,6 +23,12 @@ app.use(express.json({ limit: '3mb' }));
 app.get('/', (req, res) => res.sendFile(path.join(__dirname, 'index.html')));
 
 app.post('/api/scan', async (req, res) => {
+  const ip = (req.headers['x-forwarded-for'] || req.socket.remoteAddress || '').toString().split(',')[0].trim();
+  const rl = rateLimit(ip);
+  if (!rl.ok) {
+    res.set('Retry-After', String(rl.retryAfter));
+    return res.status(429).json({ error: `Demasiados análisis seguidos. Espera ${rl.retryAfter}s e intenta de nuevo.` });
+  }
   try {
     const result = await runScan(req.body && req.body.url);
     res.json(result);
