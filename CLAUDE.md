@@ -33,14 +33,19 @@ Get-NetTCPConnection -LocalPort 3000 -State Listen | ForEach-Object { Stop-Proce
 Dualidad clave: **producción es Vercel serverless, pero `server.js` existe solo para desarrollo local.** Ambos comparten toda la lógica en `lib/scanner.js` — ahí es donde se trabaja.
 
 ```
-index.html        Frontend (single page, sin framework ni build) — Vercel lo sirve en /
+public/           Raíz estática que Vercel sirve en / (¡con public/ presente, Vercel sirve ESTA carpeta, no la raíz del repo!)
+  index.html      Frontend (single page, sin framework ni build)
+  favicon.svg · logo-ml-inv.png   assets del front
 api/scan.js       Vercel function → POST /api/scan   (handler delgado)
 api/lead.js       Vercel function → POST /api/lead   (handler delgado)
 api/_body.js      helper de parseo de body (el prefijo "_" evita que Vercel lo trate como endpoint)
 lib/scanner.js    TODA la lógica: scoring, fetch, cache, rate-limit, leads
-server.js         Express SOLO para local; replica /api/scan y /api/lead usando lib/scanner.js
+server.js         Express SOLO para local; sirve public/ y replica /api/scan y /api/lead usando lib/scanner.js
+apps-script/      Google Apps Script (webhook de leads → Sheet + PDF + email vía Resend). NO se deploya con la app.
 vercel.json       maxDuration 60s (un scan PSI tarda ~15-45s; PSI hace timeout a 45s)
 ```
+
+**OJO:** el front vive en `public/index.html`, no en la raíz. Si se mueve a la raíz, Vercel devuelve 404 en `/` (al existir `public/` la toma como output estático). Las funciones `api/*.js` se detectan igual aunque exista `public/`.
 
 Regla práctica: cualquier cambio de comportamiento va en `lib/scanner.js`. Los handlers (`api/*.js`, `server.js`) solo hacen rate-limit + parseo + llamar a `runScan`/`saveLead`. Si tocás la firma de un export, actualizá los **tres** consumidores (`api/scan.js`, `api/lead.js`, `server.js`).
 

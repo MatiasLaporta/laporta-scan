@@ -19,11 +19,11 @@ const PORT = process.env.PORT || 3000;
 
 app.use(express.json({ limit: '3mb' }));
 
-// Assets estáticos (favicon, logo…). En Vercel los sirve la plataforma desde /public.
+// Frontend + assets estáticos viven en /public (en Vercel, public/ es la raíz del sitio).
 app.use(express.static(path.join(__dirname, 'public')));
 
-// Frontend
-app.get('/', (req, res) => res.sendFile(path.join(__dirname, 'index.html')));
+// Fallback explícito a index.html en la raíz
+app.get('/', (req, res) => res.sendFile(path.join(__dirname, 'public', 'index.html')));
 
 app.post('/api/scan', async (req, res) => {
   const ip = (req.headers['x-forwarded-for'] || req.socket.remoteAddress || '').toString().split(',')[0].trim();
