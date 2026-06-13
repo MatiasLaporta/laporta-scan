@@ -41,7 +41,7 @@ api/lead.js       Vercel function → POST /api/lead   (handler delgado)
 api/_body.js      helper de parseo de body (el prefijo "_" evita que Vercel lo trate como endpoint)
 lib/scanner.js    TODA la lógica: scoring, fetch, cache, rate-limit, leads
 server.js         Express SOLO para local; sirve public/ y replica /api/scan y /api/lead usando lib/scanner.js
-apps-script/      Google Apps Script (webhook de leads → Sheet + PDF + email vía Resend). NO se deploya con la app.
+apps-script/      Google Apps Script (webhook de leads → Sheet + PDF + email vía MailerSend). NO se deploya con la app.
 vercel.json       maxDuration 60s (un scan PSI tarda ~15-45s; PSI hace timeout a 45s)
 ```
 

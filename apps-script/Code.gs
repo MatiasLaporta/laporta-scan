@@ -13,9 +13,10 @@ const CONFIG = {
   // ID de tu Google Sheet (lo sacás de la URL: /spreadsheets/d/<ESTE_ID>/edit). Vacío = no guarda en Sheet.
   SHEET_ID: '',
   SHEET_NAME: 'Leads',
-  // Remitente (Resend, subdominio verificado). Aísla la reputación del dominio principal.
-  // OJO: la API key NO va acá. Se guarda en Configuración del proyecto → Propiedades del script → RESEND_API_KEY.
-  FROM: 'Matías Laporta <scan@send.matiaslaporta.com>',
+  // Remitente: dirección del subdominio verificado en MailerSend (aísla la reputación del dominio principal).
+  // OJO: la API key NO va acá. Se guarda en Configuración del proyecto → Propiedades del script → MAILERSEND_API_KEY.
+  FROM_EMAIL: 'scan@send.matiaslaporta.com',
+  FROM_NAME: 'Matías Laporta',
   // Copia oculta para vos (para enterarte de cada lead). '' para desactivar.
   BCC: 'matias@digitals.cl',
   // Email al que el prospecto puede responder.
@@ -27,9 +28,9 @@ const CONFIG = {
   SITE_URL: 'https://scan.matiaslaporta.com',
 };
 
-// API key de Resend — se lee de las Propiedades del script (no se hardcodea en el repo público).
+// API key de MailerSend — se lee de las Propiedades del script (no se hardcodea en el repo público).
 function getApiKey_() {
-  return PropertiesService.getScriptProperties().getProperty('RESEND_API_KEY') || '';
+  return PropertiesService.getScriptProperties().getProperty('MAILERSEND_API_KEY') || '';
 }
 
 // Paleta (para el PDF/email)
@@ -71,7 +72,7 @@ function appendToSheet_(lead) {
     lead.url || '', lead.score || '', lead.ip || '']);
 }
 
-/* ---------- Email (Resend) + PDF ---------- */
+/* ---------- Email (MailerSend) + PDF ---------- */
 function sendReport_(lead) {
   const cs = (lead.scanData && lead.scanData.consolidated) || {};
   const host = cleanHost_(lead.url);
@@ -82,16 +83,16 @@ function sendReport_(lead) {
   const pdfB64 = Utilities.base64Encode(pdf.getBytes());
 
   const payload = {
-    from: CONFIG.FROM,
-    to: [lead.email],
+    from: { email: CONFIG.FROM_EMAIL, name: CONFIG.FROM_NAME },
+    to: [{ email: lead.email, name: lead.name || '' }],
     subject: 'Tu auditoría web · ' + host + ' · score ' + (cs.globalScore != null ? cs.globalScore : '–') + '/100',
     html: buildEmailHtml_(lead, cs, host),
-    attachments: [{ filename: 'Auditoria-' + host + '.pdf', content: pdfB64 }],
+    attachments: [{ content: pdfB64, filename: 'Auditoria-' + host + '.pdf', disposition: 'attachment' }],
   };
-  if (CONFIG.BCC) payload.bcc = [CONFIG.BCC];
-  if (CONFIG.REPLY_TO) payload.reply_to = CONFIG.REPLY_TO;
+  if (CONFIG.BCC) payload.bcc = [{ email: CONFIG.BCC }];
+  if (CONFIG.REPLY_TO) payload.reply_to = { email: CONFIG.REPLY_TO };
 
-  const res = UrlFetchApp.fetch('https://api.resend.com/emails', {
+  const res = UrlFetchApp.fetch('https://api.mailersend.com/v1/email', {
     method: 'post',
     contentType: 'application/json',
     headers: { Authorization: 'Bearer ' + getApiKey_() },
@@ -99,7 +100,8 @@ function sendReport_(lead) {
     muteHttpExceptions: true,
   });
   const code = res.getResponseCode();
-  if (code >= 300) throw new Error('Resend ' + code + ': ' + res.getContentText());
+  // MailerSend responde 202 Accepted en éxito.
+  if (code >= 300) throw new Error('MailerSend ' + code + ': ' + res.getContentText());
 }
 
 /* ---------- helpers ---------- */
