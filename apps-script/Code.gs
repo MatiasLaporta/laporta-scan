@@ -13,17 +13,24 @@ const CONFIG = {
   // ID de tu Google Sheet (lo sacás de la URL: /spreadsheets/d/<ESTE_ID>/edit). Vacío = no guarda en Sheet.
   SHEET_ID: '',
   SHEET_NAME: 'Leads',
-  // Tu link de agenda (Calendly, Google Calendar appointments, etc.). Cambialo por el real.
-  BOOKING_URL: 'https://matiaslaporta.com',
+  // Remitente (Resend, subdominio verificado). Aísla la reputación del dominio principal.
+  // OJO: la API key NO va acá. Se guarda en Configuración del proyecto → Propiedades del script → RESEND_API_KEY.
+  FROM: 'Matías Laporta <scan@send.matiaslaporta.com>',
   // Copia oculta para vos (para enterarte de cada lead). '' para desactivar.
   BCC: 'matias@digitals.cl',
-  FROM_NAME: 'Matías Laporta',
   // Email al que el prospecto puede responder.
   REPLY_TO: 'matias@digitals.cl',
+  // Tu link de agenda (Calendly, Google Calendar appointments, etc.). Cambialo por el real.
+  BOOKING_URL: 'https://matiaslaporta.com',
   // Logo (claro/invertido) servido por la app. Va sobre la franja oscura del PDF/email.
   LOGO_URL: 'https://scan.matiaslaporta.com/logo-ml-inv.png',
   SITE_URL: 'https://scan.matiaslaporta.com',
 };
+
+// API key de Resend — se lee de las Propiedades del script (no se hardcodea en el repo público).
+function getApiKey_() {
+  return PropertiesService.getScriptProperties().getProperty('RESEND_API_KEY') || '';
+}
 
 // Paleta (para el PDF/email)
 const C = {
@@ -64,25 +71,35 @@ function appendToSheet_(lead) {
     lead.url || '', lead.score || '', lead.ip || '']);
 }
 
-/* ---------- Email + PDF ---------- */
+/* ---------- Email (Resend) + PDF ---------- */
 function sendReport_(lead) {
   const cs = (lead.scanData && lead.scanData.consolidated) || {};
   const host = cleanHost_(lead.url);
 
+  // PDF del reporte
   const pdfHtml = buildReportHtml_(lead, cs, host);
-  const pdf = Utilities.newBlob(pdfHtml, 'text/html', 'reporte.html')
-    .getAs('application/pdf')
-    .setName('Auditoria-' + host + '.pdf');
+  const pdf = Utilities.newBlob(pdfHtml, 'text/html', 'reporte.html').getAs('application/pdf');
+  const pdfB64 = Utilities.base64Encode(pdf.getBytes());
 
-  MailApp.sendEmail({
-    to: lead.email,
-    bcc: CONFIG.BCC || '',
-    name: CONFIG.FROM_NAME,
-    replyTo: CONFIG.REPLY_TO || '',
+  const payload = {
+    from: CONFIG.FROM,
+    to: [lead.email],
     subject: 'Tu auditoría web · ' + host + ' · score ' + (cs.globalScore != null ? cs.globalScore : '–') + '/100',
-    htmlBody: buildEmailHtml_(lead, cs, host),
-    attachments: [pdf],
+    html: buildEmailHtml_(lead, cs, host),
+    attachments: [{ filename: 'Auditoria-' + host + '.pdf', content: pdfB64 }],
+  };
+  if (CONFIG.BCC) payload.bcc = [CONFIG.BCC];
+  if (CONFIG.REPLY_TO) payload.reply_to = CONFIG.REPLY_TO;
+
+  const res = UrlFetchApp.fetch('https://api.resend.com/emails', {
+    method: 'post',
+    contentType: 'application/json',
+    headers: { Authorization: 'Bearer ' + getApiKey_() },
+    payload: JSON.stringify(payload),
+    muteHttpExceptions: true,
   });
+  const code = res.getResponseCode();
+  if (code >= 300) throw new Error('Resend ' + code + ': ' + res.getContentText());
 }
 
 /* ---------- helpers ---------- */
